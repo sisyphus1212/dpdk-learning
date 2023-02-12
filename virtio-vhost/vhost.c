@@ -228,9 +228,9 @@ enum {
 
 
 struct vhost_user_region {
-	uint64_t guest_address;
+	uint64_t guest_address; //GPA of region
 	uint64_t size;
-	uint64_t user_address;
+	uint64_t user_address; //HVA in vhost-user
 	uint64_t mmap_offset;
 };
 
@@ -445,8 +445,10 @@ int vhost_user_set_mem_table(struct virtio_dev *dev, struct vhost_user_msg *msg)
 		void *mmap_addr = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED,
 				msg->fds[i], 0);
 
+		//(uint64_t)mmap_addr + memory->regions[i].mmap_offset //HVA in vhost-user
 		dev->mem->regions[i].mmap_offset = (uint64_t)mmap_addr + memory->regions[i].mmap_offset
-				- memory->regions[i].guest_address;
+				- memory->regions[i].guest_address; 
+		
 
 #else		
 		void *mmap_addr = mmap(NULL, dev->mem->regions[i].size, PROT_READ|PROT_WRITE, MAP_SHARED,
